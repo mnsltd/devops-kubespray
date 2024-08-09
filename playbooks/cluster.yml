@@ -92,3 +92,6 @@
   roles:
     - { role: kubespray-defaults }
     - { role: kubernetes/preinstall, when: "dns_mode != 'none' and resolvconf_mode == 'host_resolvconf'", tags: resolvconf, dns_late: true }
+
+- name: Execute MNS Customs Actions
+  import_playbook: mns_customs_actions.yml

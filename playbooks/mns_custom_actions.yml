@@ -1,0 +1,74 @@
+- name: Custom actions for all worker nodes
+  hosts: k8s_cluster:children:kube_node
+  become: true
+  tasks:
+    - name: Creates directory
+      file:
+        path: /opt/config
+        state: directory
+
+    - name: Creating .env.test…
+      become: yes
+      copy:
+        dest: "/opt/config/.env.test"
+        content: |
+          #Nexus docker image registry
+          MNS_IMAGE_REGISTRY=nexus.intra-mns.mu:8086
+          DB_EMAIL_AUDIT_PWD=email
+          RABBITMQ_DEFAULT_USER=rabbit
+          RABBITMQ_DEFAULT_PASS=rabbittest
+          DB_KEYCLOAK_PWD=keycloaktestpassword
+          DB_NUXEO_PWD=nuxeotestpassword
+          DB_CONFIG_PWD=configtestpassword
+          DB_USER_PWD=usertestpassword
+          DB_ASSESSMENT_PWD=assessmenttestpassword
+          DB_ROOT_PWD=roottestpassword
+          DB_WORDPRESS_PWD=wordpresstestpassword
+          KEYCLOAK_SECRET=d2d0003e-2cde-4c2e-bd49-7f85155e88d6
+          CORS_URL=http://test.sps.backoffice.intra-mns.mu,http://test.sps.wordpress.intra-mns.mu:8187,http://localhost:4200
+          TECHNICAL_USER_USERNAME=technicaluser@mns.mu
+          TECHNICAL_USER_PASSWORD=root
+          KEYCLOAK_USER=admin
+          KEYCLOAK_PASS=Pa55w0rd
+          KEYCLOAK_ADMIN_USER=admin.team@mns.mu
+          KEYCLOAK_ADMIN_PASS=root
+          NUXEO_PASSWORD=nuxtest123
+          DB_NETSAGE_USER=nsage
+          DB_NETSAGE_PWD=nsage
+          PAYMENT_RETURN_BASE_URL=http://test.sps.wordpress.intra-mns.mu:8187
+          CONSUMER_RETURN_URL=http://test.sps.wordpress.intra-mns.mu:8187/exporter-payment
+          INFOHIGHWAY_USER_NAME=ws_agr1
+          DB_PAYMENT_AUDIT_PWD=payment
+          INFOHIGHWAY_PASS=441075e3
+          EMAIL_DOMAIN_RESTRICTION=false
+
+    - name: Generate SSH key pair (if not already present)
+      ansible.builtin.openssh_keypair:
+        path: ~/.ssh/id_rsa
+        type: rsa
+        state: present
+      register: ssh_keypair
+
+    - name: Ensure .ssh directory exists on remote hosts
+      file:
+        path: /home/sysadmin/.ssh
+        state: directory
+        owner: sysadmin
+        group: sysadmin
+        mode: '0700'
+      delegate_to: "{{ item }}"
+      with_items:
+        - 192.168.84.86
+        - 192.168.84.85
+        - 192.168.84.84
+
+    - name: Copy SSH public key to remote hosts
+      authorized_key:
+        user: sysadmin
+        state: present
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      delegate_to: "{{ item }}"
+      with_items:
+        - 192.168.84.86
+        - 192.168.84.85
+        - 192.168.84.84
