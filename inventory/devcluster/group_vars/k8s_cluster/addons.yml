@@ -174,7 +174,7 @@ cert_manager_enabled: false
 metallb_enabled: true
 metallb_speaker_enabled: "{{ metallb_enabled }}"
 metallb_namespace: "metallb-system"
-metallb_version: v0.13.9
+metallb_version: v0.14.8
 metallb_protocol: "layer2"
 metallb_port: "7472"
 metallb_memberlist_port: "7946"
