@@ -42,33 +42,7 @@
           INFOHIGHWAY_PASS=441075e3
           EMAIL_DOMAIN_RESTRICTION=false
 
-    - name: Generate SSH key pair (if not already present)
-      ansible.builtin.openssh_keypair:
-        path: ~/.ssh/id_rsa
-        type: rsa
-        state: present
-      register: ssh_keypair
-
-    - name: Ensure .ssh directory exists on remote hosts
-      file:
-        path: /home/sysadmin/.ssh
-        state: directory
-        owner: sysadmin
-        group: sysadmin
-        mode: '0700'
-      delegate_to: "{{ item }}"
+    - name: nfs install
+      yum: name={{ item }} state=installed
       with_items:
-        - 192.168.84.86
-        - 192.168.84.85
-        - 192.168.84.84
-
-    - name: Copy SSH public key to remote hosts
-      authorized_key:
-        user: sysadmin
-        state: present
-        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-      delegate_to: "{{ item }}"
-      with_items:
-        - 192.168.84.86
-        - 192.168.84.85
-        - 192.168.84.84
+        - nfs-utils
