@@ -85,7 +85,7 @@
         values:
           persistence:
             existingClaim: jenkins-pvc
-          master:
+          controller:
             useSecurity: true
             adminUser: admin
             adminPassword: P@$$w0rd
