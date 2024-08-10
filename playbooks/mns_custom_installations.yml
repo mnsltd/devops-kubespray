@@ -22,3 +22,31 @@
             name: nfs-new
             defaultClass: true
 
+    - name: Add Traefik Helm repo
+      kubernetes.core.helm_repository:
+        name: traefik
+        binary_path: "{{ bin_dir }}/helm"
+        repo_url: https://traefik.github.io/charts
+    - name: Install NFS subdir external provisioner using Helm
+      kubernetes.core.helm:
+        name: traefik
+        binary_path: "{{ bin_dir }}/helm"
+        chart_ref: traefik/traefik
+        release_namespace: traefik
+        values:
+          dashboard:
+            enabled: true
+            domain: traefik.intra-mns.mu
+            auth:
+              basic:
+                admin: $2y$05$kpCJY2gJWlgG5CUs5tdPx.2xGJ4xyqhWtjiiM/NKfHmj3pfUPsap2
+          ssl:
+            enabled: true
+            enforced: true
+            permanentRedirect: true
+            generateTLS: true
+            defaultCN: "*intra-mns.mu"
+          service:
+            externalIPs: [ 192.168.84.181 ]
+
+
