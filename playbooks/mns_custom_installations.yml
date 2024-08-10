@@ -1,16 +1,12 @@
-- name: Common tasks for every playbooks
-  import_playbook: boilerplate.yml
-
-- name: Gather facts
-  import_playbook: facts.yml
-
 - name: Custom installations for MNS
-  hosts: kube_control_plane[0]
+  hosts: kmaster
+  gather_facts: False
   become: true
   tasks:
     - name: Install NFS subdir external provisioner using Helm
       kubernetes.core.helm:
         name: nfs-subdir-external-provisioner-default
+        binary_path: "{{ bin_dir }}/helm"
         chart_ref: nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
         release_namespace: default
         values:
