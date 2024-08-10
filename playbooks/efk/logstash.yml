@@ -1,0 +1,50 @@
+apiVersion: logstash.k8s.elastic.co/v1alpha1
+kind: Logstash
+metadata:
+  name: elk
+spec:
+  count: 3
+  elasticsearchRefs:
+    - name: elk
+      clusterName: elk
+  config:
+    pipeline.workers: 5
+  version: 8.12.2
+  pipelines:
+    - pipeline.id: main
+      config.string: |
+        input {
+          beats {
+            port => 5044
+          }
+        }
+        filter {
+          if [kubernetes][namespace] in ["cert-manager", "default", "dynatrace", "elastic-system", "elk", "hrms", "kong", "kube-node-lease", "kube-public", "kube-system", "kubernetes-dashboard", "lab-mysql-innodbcluster", "lab-postgres", "logging", "metallb-system", "monitoring", "mysql-operator", "netbox", "newrelic", "prepull", "traefik", "traefik-devops", "velero", "wiki"] {
+            drop { } # Drop the event if it does not match the namespace
+          }
+          if "controller-reflector-io.kubernetes.client.openapi.models.V1ConfigMap-1" in [message] {
+            drop { }
+          }
+          if "o.s.c.k.c.c.r.KubernetesClientEventBasedConfigMapChangeDetector" in [message] {
+            drop { }
+          }
+        }
+        output {
+          elasticsearch {
+            hosts => ["https://elk-es-http:9200"]
+            user => "elastic"
+            password => "6631Vi4BBY2cJ7wbj2k2eQ3y"
+            cacert => "/mnt/elastic-internal/elasticsearch-association/elastic-system/elk/certs/ca.crt"
+            index => "k8-logs-%{+YYYY.MM.dd}"
+          }
+        }
+  services:
+    - name: beats
+      service:
+        spec:
+          type: NodePort
+          ports:
+            - port: 5044
+              name: "filebeat"
+              protocol: TCP
+              targetPort: 5044

@@ -169,4 +169,48 @@
           persistentVolume:
             existingClaim: grafana-pvc
 
+    - name: Create Elastic-system namespace
+      kubernetes.core.k8s:
+        name: elastic-system
+        api_version: v1
+        kind: Namespace
+        state: present
+    - name: Download Elastic CRD YAML
+      get_url:
+        url: https://download.elastic.co/downloads/eck/2.8.0/crds.yaml
+        dest: /tmp/crds.yaml
+    - name: Create Elastic CRDs in elastic-system namespace
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/tmp/crds.yaml') }}"
+        namespace: elastic-system
+    - name: Download Elastic Operator YAML
+      get_url:
+        url: https://download.elastic.co/downloads/eck/2.8.0/operator.yaml
+        dest: /tmp/operator.yaml
+    - name: Create Elastic Operator in elastic-system namespace
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/tmp/operator.yaml') }}"
+        namespace: elastic-system
+    - name: Apply Elasticsearch configuration
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/playbooks/efk/elastic_values.yml') }}"
+        namespace: elastic-system
+    - name: Apply Kibana configuration
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/playbooks/efk/kibana.yml') }}"
+        namespace: elastic-system
+    - name: Apply Filebeat configuration
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/playbooks/efk/filebeat.yml') }}"
+        namespace: elastic-system
+    - name: Apply Logstash configuration
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/playbooks/efk/logstash.yml') }}"
+        namespace: elastic-system
 
