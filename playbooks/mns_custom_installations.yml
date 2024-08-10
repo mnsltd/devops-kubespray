@@ -83,7 +83,7 @@
         name: jenkins
         binary_path: "{{ bin_dir }}/helm"
         chart_ref: jenkins/jenkins
-        release_namespace: jenkins
+        release_namespace: default
         values:
           persistence:
             existingClaim: jenkins-pvc
