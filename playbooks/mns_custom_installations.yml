@@ -54,6 +54,8 @@
             defaultCN: "*intra-mns.mu"
           service:
             externalIPs: [ 192.168.84.181 ]
+          deployment:
+            replicas: 2
 
     - name: Define storage space for Jenkins
       kubernetes.core.k8s:
@@ -86,9 +88,6 @@
           persistence:
             existingClaim: jenkins-pvc
           controller:
-            useSecurity: true
-            adminUser: admin
-            adminPassword: P@$$w0rd
             numExecutors: 5
             overwritePlugins: true
             ingress:
