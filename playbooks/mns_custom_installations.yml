@@ -1,5 +1,5 @@
 - name: Custom installations for MNS
-  hosts: kube_control_plane
+  hosts: kube-master
   become: true
   tasks:
     - name: Add NFS subdir external provisioner Helm repo
