@@ -22,12 +22,18 @@
             name: nfs-new
             defaultClass: true
 
+    - name: Create Traefik namespace
+      kubernetes.core.k8s:
+        name: traefik
+        api_version: v1
+        kind: Namespace
+        state: present
     - name: Add Traefik Helm repo
       kubernetes.core.helm_repository:
         name: traefik
         binary_path: "{{ bin_dir }}/helm"
         repo_url: https://traefik.github.io/charts
-    - name: Install NFS subdir external provisioner using Helm
+    - name: Install Traefik using Helm
       kubernetes.core.helm:
         name: traefik
         binary_path: "{{ bin_dir }}/helm"
@@ -48,5 +54,45 @@
             defaultCN: "*intra-mns.mu"
           service:
             externalIPs: [ 192.168.84.181 ]
+
+    - name: Define storage space for Jenkins
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: jenkins-pvc
+            namespace: default
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            storageClassName: nfs-new
+            resources:
+              requests:
+                storage: 100Gi
+    - name: Add Jenkins Helm repo
+      kubernetes.core.helm_repository:
+        name: jenkins
+        binary_path: "{{ bin_dir }}/helm"
+        repo_url: https://charts.jenkins.io
+    - name: Install Jenkins using Helm
+      kubernetes.core.helm:
+        name: jenkins
+        binary_path: "{{ bin_dir }}/helm"
+        chart_ref: jenkins/jenkins
+        release_namespace: jenkins
+        values:
+          master:
+            useSecurity: true
+            adminUser: admin
+            adminPassword: P@$$w0rd
+            numExecutors: 5
+            overwritePlugins: true
+            ingress:
+              enabled: true
+              hostName: jenkins.intra-mns.mu
+              annotations:
+                kubernetes.io/ingress.class: traefik
 
 
