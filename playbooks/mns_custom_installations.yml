@@ -199,7 +199,7 @@
         dest: /tmp/elastic_values.yml
     - name: Apply Elasticsearch configuration
       kubernetes.core.k8s:
-        state: present https://raw.githubusercontent.com/mnsltd/devops-kubespray/master/playbooks/efk/
+        state: present
         definition: "{{ lookup('file', '/tmp/elastic_values.yml') }}"
         namespace: elastic-system
     - name: Download Kibana values YAML
