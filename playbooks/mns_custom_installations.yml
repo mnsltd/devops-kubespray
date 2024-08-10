@@ -1,0 +1,18 @@
+- name: Custom actions for all worker nodes
+  hosts: kube_control_plane
+  become: true
+  tasks:
+    - name: Add NFS subdir external provisioner Helm repo
+      command: helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+      args:
+        chdir: /usr/local/bin
+      register: add_repo_result
+      changed_when: "'already exists' not in add_repo_result.stdout"
+
+    - name: Install NFS subdir external provisioner with Helm
+      command: >
+        helm install nfs-subdir-external-provisioner-default nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
+        --set nfs.server=dev-newsan.mns.intra-mns.mu
+        --set nfs.path=/DEV_NFS_DATA
+        --set storageClass.name=nfs-new
+        --set storageClass.defaultClass=true
