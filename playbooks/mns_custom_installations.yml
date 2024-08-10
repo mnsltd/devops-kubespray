@@ -1,5 +1,5 @@
 - name: Custom installations for MNS
-  hosts: k8s_cluster:children:kube_control_plane
+  hosts: kube_control_plane[0]
   become: true
   tasks:
     - name: Install NFS subdir external provisioner using Helm
