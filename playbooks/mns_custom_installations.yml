@@ -96,4 +96,46 @@
               annotations:
                 kubernetes.io/ingress.class: traefik
 
+    - name: Create Monitoring namespace
+      kubernetes.core.k8s:
+        name: monitoring
+        api_version: v1
+        kind: Namespace
+        state: present
+    - name: Define storage space for Prometheus
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: prometheus-pvc
+            namespace: monitoring
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            storageClassName: nfs-new
+            resources:
+              requests:
+                storage: 20Gi
+    - name: Add Prometheus Helm repo
+      kubernetes.core.helm_repository:
+        name: prometheus-community
+        binary_path: "{{ bin_dir }}/helm"
+        repo_url: https://prometheus-community.github.io/helm-charts
+    - name: Install Prometheus using Helm
+      kubernetes.core.helm:
+        name: prometheus-community
+        binary_path: "{{ bin_dir }}/helm"
+        chart_ref: prometheus-community/prometheus
+        release_namespace: monitoring
+        values:
+          server:
+            ingress:
+              enabled: true
+              hosts:
+                - prometheus.intra-mns.mu
+            persistentVolume:
+              existingClaim: prometheus-pvc
+
 
