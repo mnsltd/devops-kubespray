@@ -9,7 +9,7 @@ spec:
       clusterName: elk
   config:
     pipeline.workers: 5
-  version: 8.12.2
+  version: 8.14.3
   pipelines:
     - pipeline.id: main
       config.string: |

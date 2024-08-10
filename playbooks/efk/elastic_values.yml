@@ -3,7 +3,7 @@ kind: Elasticsearch
 metadata:
   name: elk
 spec:
-  version: 8.12.2
+  version: 8.14.3
   nodeSets:
     # 3 dedicated master nodes
     - name: master

@@ -195,16 +195,16 @@
         namespace: elastic-system
     - name: Download Elastic values YAML
       get_url:
-        url: https://github.com/mnsltd/devops-kubespray/blob/master/playbooks/efk/elastic_values.yml
+        url:  https://raw.githubusercontent.com/mnsltd/devops-kubespray/master/playbooks/efk/elastic_values.yml
         dest: /tmp/elastic_values.yml
     - name: Apply Elasticsearch configuration
       kubernetes.core.k8s:
-        state: present
+        state: present https://raw.githubusercontent.com/mnsltd/devops-kubespray/master/playbooks/efk/
         definition: "{{ lookup('file', '/tmp/elastic_values.yml') }}"
         namespace: elastic-system
     - name: Download Kibana values YAML
       get_url:
-        url: https://github.com/mnsltd/devops-kubespray/blob/master/playbooks/efk/kibana.yml
+        url:  https://raw.githubusercontent.com/mnsltd/devops-kubespray/master/playbooks/efk/kibana.yml
         dest: /tmp/kibana.yml
     - name: Apply Kibana configuration
       kubernetes.core.k8s:
@@ -213,7 +213,7 @@
         namespace: elastic-system
     - name: Download Filebeat values YAML
       get_url:
-        url: https://github.com/mnsltd/devops-kubespray/blob/master/playbooks/efk/filebeat.yml
+        url:  https://raw.githubusercontent.com/mnsltd/devops-kubespray/master/playbooks/efk/filebeat.yml
         dest: /tmp/filebeat.yml
     - name: Apply Filebeat configuration
       kubernetes.core.k8s:
@@ -222,7 +222,7 @@
         namespace: elastic-system
     - name: Download Logstash values YAML
       get_url:
-        url: https://github.com/mnsltd/devops-kubespray/blob/master/playbooks/efk/logstash.yml
+        url:  https://raw.githubusercontent.com/mnsltd/devops-kubespray/master/playbooks/efk/logstash.yml
         dest: /tmp/logstash.yml
     - name: Apply Logstash configuration
       kubernetes.core.k8s:

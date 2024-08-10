@@ -3,7 +3,7 @@ kind: Kibana
 metadata:
   name: elk
 spec:
-  version: 8.12.2
+  version: 8.14.3
   count: 2
   elasticsearchRef:
     name: elk
