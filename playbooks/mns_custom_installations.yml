@@ -19,3 +19,11 @@
           nfs.path: /DEV_NFS_DATA
           storageClass.name: nfs-new
           storageClass.defaultClass: true
+          volumes:
+            - name: nfs-subdir-external-provisioner-root
+              nfs:
+                server: dev-newsan.mns.intra-mns.mu
+                path: /DEV_NFS_DATA
+          volumeMounts:
+            - name: nfs-subdir-external-provisioner-root
+              mountPath: /persistentvolumes
