@@ -83,6 +83,8 @@
         chart_ref: jenkins/jenkins
         release_namespace: jenkins
         values:
+          persistence:
+            existingClaim: jenkins-pvc
           master:
             useSecurity: true
             adminUser: admin
