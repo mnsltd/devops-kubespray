@@ -274,7 +274,7 @@
         state: present
     - name: Install RabbitMQ Cluster Operator
       kubernetes.core.helm:
-        name: rabbitmq-cluster-operator
+        name: rabbitmq-cluster-operator-test
         chart_ref: rabbitmq-cluster-operator/rabbitmq-cluster-operator
         release_namespace: mns-com-test
         binary_path: "{{ bin_dir }}/helm"
@@ -294,7 +294,7 @@
         name: hazelcast
         binary_path: "{{ bin_dir }}/helm"
         repo_url: https://hazelcast-charts.s3.amazonaws.com/
-    - name: Install Hazelcast Cluster Operator
+    - name: Install Hazelcast Cluster
       kubernetes.core.helm:
         name: hazelcast
         chart_ref: hazelcast/hazelcast
@@ -305,7 +305,7 @@
             memberCount: 3
           metrics:
             enabled: true
-    - name: Install Hazelcast Cluster Operator
+    - name: Install Hazelcast Cluster
       kubernetes.core.helm:
         name: hazelcast
         chart_ref: hazelcast/hazelcast
