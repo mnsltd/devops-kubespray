@@ -230,3 +230,41 @@
         definition: "{{ lookup('file', '/tmp/logstash.yml') }}"
         namespace: elastic-system
 
+    - name: Create mns-com-dev namespace
+      kubernetes.core.k8s:
+        name: mns-com-dev
+        api_version: v1
+        kind: Namespace
+        state: present
+    - name: Create Docker registry secret
+      kubernetes.core.k8s:
+        state: present
+        namespace: mns-com-dev
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: docker-release-secret
+          type: kubernetes.io/dockerconfigjson
+          data:
+            .dockerconfigjson: "{{ lookup('pipe', 'echo -n \'{\"auths\": {\"http://nexus.intra-mns.mu:8086\": {\"username\": \"k8\", \"password\": \"password\", \"email\": \"k8@mns.mu\", \"auth\": \"' + (\"k8:password\" | b64encode) + '\"}}}}\' | base64 -w0') }}"
+    - name: Add RabbitMQ Helm repository
+      kubernetes.core.helm_repository:
+        name: rabbitmq-cluster-operator
+        binary_path: "{{ bin_dir }}/helm"
+        repo_url: https://adeptia.github.io/rabbitmq-cluster-operator-helm-package/charts/
+    - name: Install RabbitMQ Cluster Operator
+      kubernetes.core.helm:
+        name: rabbitmq-cluster-operator
+        chart_ref: rabbitmq-cluster-operator/rabbitmq-cluster-operator
+        release_namespace: mns-com-dev
+        binary_path: "{{ bin_dir }}/helm"
+    - name: Install RabbitMQ Cluster
+      kubernetes.core.helm:
+        name: rabbitmq-cluster
+        binary_path: "{{ bin_dir }}/helm"
+        chart_ref: rabbitmq/rabbitmq
+        release_namespace: mns-com-dev
+        values:
+          replicaCount: 3
+
