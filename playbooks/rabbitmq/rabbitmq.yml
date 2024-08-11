@@ -20,16 +20,6 @@ spec:
   persistence:
     storageClassName: nfs-new
     storage: "10Gi"
-  affinity:
-    podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                  - mns-com
-          topologyKey: kubernetes.io/hostname
   override:
     statefulSet:
       spec:
