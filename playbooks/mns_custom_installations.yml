@@ -247,12 +247,22 @@
         chart_ref: rabbitmq-cluster-operator/rabbitmq-cluster-operator
         release_namespace: mns-com-dev
         binary_path: "{{ bin_dir }}/helm"
-    - name: Install RabbitMQ Cluster
-      kubernetes.core.helm:
-        name: rabbitmq-cluster
-        binary_path: "{{ bin_dir }}/helm"
-        chart_ref: rabbitmq/rabbitmq
-        release_namespace: mns-com-dev
-        values:
-          replicaCount: 3
+    - name: Download RabbitMQ values YAML
+      get_url:
+        url: https://raw.githubusercontent.com/mnsltd/devops-kubespray/master/playbooks/rabbitmq/rabbitmq.yml
+        dest: /tmp/rabbitmq.yml
+    - name: Apply RabbitMQ configuration
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/tmp/rabbitmq.yml') }}"
+        namespace: mns-com-dev
+    - name: Download Pod Disruption values YAML
+      get_url:
+        url: https://raw.githubusercontent.com/mnsltd/devops-kubespray/master/playbooks/rabbitmq/pod-disruption-budget.yml
+        dest: /tmp/pod-disruption-budget.yml
+    - name: Apply Pod Disruption configuration
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/tmp/pod-disruption-budget.yml.yml') }}"
+        namespace: mns-com-dev
 
