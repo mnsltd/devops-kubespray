@@ -263,6 +263,57 @@
     - name: Apply Pod Disruption configuration
       kubernetes.core.k8s:
         state: present
-        definition: "{{ lookup('file', '/tmp/pod-disruption-budget.yml.yml') }}"
+        definition: "{{ lookup('file', '/tmp/pod-disruption-budget.yml') }}"
         namespace: mns-com-dev
+
+    - name: Create mns-com-test namespace
+      kubernetes.core.k8s:
+        name: mns-com-test
+        api_version: v1
+        kind: Namespace
+        state: present
+    - name: Install RabbitMQ Cluster Operator
+      kubernetes.core.helm:
+        name: rabbitmq-cluster-operator
+        chart_ref: rabbitmq-cluster-operator/rabbitmq-cluster-operator
+        release_namespace: mns-com-test
+        binary_path: "{{ bin_dir }}/helm"
+    - name: Apply RabbitMQ configuration
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/tmp/rabbitmq.yml') }}"
+        namespace: mns-com-test
+    - name: Apply Pod Disruption configuration
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', '/tmp/pod-disruption-budget.yml') }}"
+        namespace: mns-com-test
+
+    - name: Add Hazelcast Helm repository
+      kubernetes.core.helm_repository:
+        name: hazelcast
+        binary_path: "{{ bin_dir }}/helm"
+        repo_url: https://hazelcast-charts.s3.amazonaws.com/
+    - name: Install Hazelcast Cluster Operator
+      kubernetes.core.helm:
+        name: hazelcast
+        chart_ref: hazelcast/hazelcast
+        release_namespace: mns-com-dev
+        binary_path: "{{ bin_dir }}/helm"
+        values:
+          cluster:
+            memberCount: 3
+          metrics:
+            enabled: true
+    - name: Install Hazelcast Cluster Operator
+      kubernetes.core.helm:
+        name: hazelcast
+        chart_ref: hazelcast/hazelcast
+        release_namespace: mns-com-test
+        binary_path: "{{ bin_dir }}/helm"
+        values:
+          cluster:
+            memberCount: 3
+          metrics:
+            enabled: true
 
