@@ -59,9 +59,7 @@
             endpoint = ["http://nexus.intra-mns.mu:8085"]
           [plugins."io.containerd.grpc.v1.cri".registry.mirrors."nexus.intra-mns.mu:8086"]
             endpoint = ["http://nexus.intra-mns.mu:8086"]
-      notify: Restart containerd
 
-  handlers:
     - name: Restart containerd
       service:
         name: containerd
