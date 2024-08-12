@@ -61,6 +61,7 @@
             endpoint = ["http://nexus.intra-mns.mu:8086"]
       notify: Restart containerd
 
+  handlers:
     - name: Restart containerd
       service:
         name: containerd
