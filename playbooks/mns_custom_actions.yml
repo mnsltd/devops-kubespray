@@ -46,3 +46,22 @@
       yum: name={{ item }} state=installed
       with_items:
         - nfs-utils
+
+    - name: Add insecure registries after the docker.io endpoint in containerd config
+      blockinfile:
+        path: /etc/containerd/config.toml
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - Insecure Registries"
+        insertafter: '^\s*endpoint = \["https://registry-1.docker.io"\]'
+        block: |
+          [plugins."io.containerd.grpc.v1.cri".registry.mirrors."nexus.intra-mns.mu:8084"]
+            endpoint = ["http://nexus.intra-mns.mu:8084"]
+          [plugins."io.containerd.grpc.v1.cri".registry.mirrors."nexus.intra-mns.mu:8085"]
+            endpoint = ["http://nexus.intra-mns.mu:8085"]
+          [plugins."io.containerd.grpc.v1.cri".registry.mirrors."nexus.intra-mns.mu:8086"]
+            endpoint = ["http://nexus.intra-mns.mu:8086"]
+      notify: Restart containerd
+
+    - name: Restart containerd
+      service:
+        name: containerd
+        state: restarted
