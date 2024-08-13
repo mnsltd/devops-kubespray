@@ -357,7 +357,9 @@
           otelCollector:
             config:
               processors:
-                memory_limiter: null
+                memory_limiter:
+                  check_interval: 60s
+                  limit_mib: 2000
                 k8sattributes/hostmetrics:
                   # -- Whether to detect the IP address of agents and add it as an attribute to all telemetry resources.
                   # If set to true, Agents will not make any k8s API calls, do any discovery of pods or extract any metadata.
