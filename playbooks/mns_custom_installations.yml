@@ -317,3 +317,81 @@
           metrics:
             enabled: true
 
+    - name: Create signoz namespace
+      kubernetes.core.k8s:
+        name: signoz
+        api_version: v1
+        kind: Namespace
+        state: present
+    - name: Add Signoz Helm repo
+      kubernetes.core.helm_repository:
+        name: signoz
+        binary_path: "{{ bin_dir }}/helm"
+        repo_url: https://charts.signoz.io
+    - name: Install Signoz using Helm
+      kubernetes.core.helm:
+        name: signoz
+        binary_path: "{{ bin_dir }}/helm"
+        chart_ref: signoz/signoz
+        release_namespace: signoz
+        values:
+          k8s-infra:
+            # -- Whether to enable K8s infra monitoring
+            enabled: false
+          global:
+            storageClass: nfs-new
+          clickhouse:
+            persistence:
+              storageClass: nfs-new
+              size: 50Gi
+          queryService:
+            cache:
+              config:
+                inmemory:
+                  ttl: 24h
+            persistence:
+              storageClass: nfs-new
+          alermanager:
+            persistence:
+              storageClass: nfs-new
+          otelCollector:
+            config:
+              processors:
+                memory_limiter: null
+                k8sattributes/hostmetrics:
+                  # -- Whether to detect the IP address of agents and add it as an attribute to all telemetry resources.
+                  # If set to true, Agents will not make any k8s API calls, do any discovery of pods or extract any metadata.
+                  passthrough: false
+                  # -- Filters can be used to limit each OpenTelemetry agent to query pods based on specific
+                  # selector to only dramatically reducing resource requirements for very large clusters.
+                  filter:
+                    # -- Restrict each OpenTelemetry agent to query pods running on the same node
+                    node_from_env_var: K8S_NODE_NAME
+                  pod_association:
+                    - sources:
+                        - from: resource_attribute
+                          name: k8s.pod.ip
+                    - sources:
+                        - from: resource_attribute
+                          name: k8s.pod.uid
+                    - sources:
+                        - from: connection
+                  extract:
+                    metadata:
+                      - k8s.namespace.name
+                      - k8s.pod.name
+                      - k8s.pod.uid
+                      - k8s.pod.start_time
+                      - k8s.deployment.name
+                      - k8s.node.name
+              receivers:
+                hostmetrics:
+                  collection_interval: 30s
+                  scrapers:
+                    cpu: { }
+                    load: { }
+                    memory: { }
+                    disk: { }
+                    filesystem: { }
+                    network: { }
+
